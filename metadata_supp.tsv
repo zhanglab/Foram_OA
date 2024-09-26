@@ -1,0 +1,77 @@
+Exp	tank	Cell	Control	ID	Shell Radius Circle	Shell Diameter	Nchamber	Proloculus Radius Circle	Proloculus Diameter	Structure	ReproductiveStage
+OA3	pH 7.2	H2	Live	OA3 T1 H2 Live	117.01	234.02	16	14.05	28.1	No Ornamentation	Microsphere
+OA2	pH 7.2	H5	Dead	OA2 T1 H5 Dead	135.25	270.5	11	33.84	67.68	No ornamentation	Megalosphere
+OA2	pH 7.2	H2	Dead	OA2 T1 H2 Dead	182.93	365.86	14	33.32	66.64	No ornamentation	Megalosphere
+OA2	pH 7.2	H3	Live	OA2 T1 H3 Live	179.91	359.82	13	29.22	58.44	No ornamentation	Megalosphere
+OA3	pH 7.2	H3	Dead	OA3 T1 H3 Dead	156.33	312.66	17	20.17	40.34	Ornamentation	Microsphere
+OA3	pH 7.2	H3	Live	OA3 T1 H3 Live	160.21	320.42	28	6.7	13.4	Ornamentation	Microsphere
+OA2	pH 7.2	H4	Live	OA2 T1 H4 Live	170.53	341.06	22	16.23	32.46	Ornamentation	Microsphere
+OA2	pH 7.2	H5	Live	OA2 T1 H5 Live	222.34	444.68	24	20.46	40.92	Ornamentation	Microsphere
+OA2	pH 7.2	H6	Live	OA2 T1 H6 Live	171.09	342.18	15	23.44	46.88	Ornamentation (some sutures)	Microsphere
+OA3	pH 7.2	H4	Dead	OA3 T1 H4 Dead	186.02	372.04	22	15.33	30.66	Ornamentation	Microsphere
+OA3	pH 7.2	H5	Dead	OA3 T1 H5 Dead	184.84	369.68	21	16.07	32.14	Ornamentation	Microsphere
+OA2	pH 7.2	H6	Dead	OA2 T1 H6 Dead	175.91	351.82	20	18.48	36.96	Ornamentation	Microsphere
+OA3	pH 7.2	H2	Dead	OA3 T1 H2 Dead	188.23	376.46	23	24.57	49.14	Ornamentation	Microsphere
+OA3	pH 7.2	H1	Dead	OA3 T1 H1 Dead	195.15	390.3	21	21.83	43.66	Ornamentation	Microsphere
+OA2	pH 7.2	H1	Dead	OA2 T1 H1 Dead	212.61	425.22	21	18.16	36.32	Ornamentation	Microsphere
+OA3	pH 7.2	H4	Live	OA3 T1 H4 Live	218.6	437.2	23	25.11	50.22	Ornamentation	Microsphere
+OA2	pH 7.2	H1	Live	OA2 T1 H1 Live	244.55	489.1	21	20.24	40.48	Ornamentation	Microsphere
+OA2	pH 7.6	H8	Dead	OA2 T2 H8 Dead	149.41	298.82	11	32.74	65.48	No ornamentation	Megalosphere
+OA2	pH 7.6	H7	Dead	OA2 T2 H7 Dead	155.89	311.78	12	40.66	81.32	No ornamentation (except in last chamber)	Megalosphere
+OA2	pH 7.6	H12	Dead	OA2 T2 H12 Dead	185.18	370.36	13	32.5	65	No ornamentation	Megalosphere
+OA2	pH 7.6	H4	Dead	OA2 T2 H4 Dead	208.52	417.04	15	30.97	61.94	No ornamentation	Megalosphere
+OA2	pH 7.6	H5	Dead	OA2 T2 H5 Dead	195.18	390.36	13	35.57	71.14	No ornamentation	Megalosphere
+OA2	pH 7.6	H2	Dead	OA2 T2 H2 Dead	140.81	281.62	17	19.55	39.1	Ornamentation	Microsphere
+OA3	pH 7.6	H6	Dead	OA3 T2 H6 Dead	164.07	328.14	23	15.83	31.66	Ornamentation	Microsphere
+OA2	pH 7.6	H6	Dead	OA2 T2 H6 Dead	163.47	326.94	16	21.46	42.92	Ornamentation (some sutures)	Microsphere
+OA3	pH 7.6	H1	Dead	OA3 T2 H1 Dead	175.49	350.98	19	16.52	33.04	Ornamentation	Microsphere
+OA2	pH 7.6	H11	Dead	OA2 T2 H11 Dead	174.07	348.14	17	21.94	43.88	Ornamentation	Microsphere
+OA2	pH 7.6	H3	Live	OA2 T2 H3 Live	184.04	368.08	21	17.26	34.52	Ornamentation	Microsphere
+OA3	pH 7.6	H2	Live	OA3 T2 H2 Live	180.75	361.5	16	19.41	38.82	Ornamentation	Microsphere
+OA3	pH 7.6	H3	Live	OA3 T2 H3 Live	173.18	346.36	20	18.09	36.18	Ornamentation	Microsphere
+OA2	pH 7.6	H3	Dead	OA2 T2 H3 Dead	193.18	386.36	19	20.24	40.48	Ornamentation	Microsphere
+OA2	pH 7.6	H6	Live	OA2 T2 H6 Live	198.29	396.58	22	19.6	39.2	Ornamentation	Microsphere
+OA3	pH 7.6	H1	Live	OA3 T2 H1 Live	203.17	406.34	21	20.75	41.5	Ornamentation	Microsphere
+OA3	pH 7.6	H5	Live	OA3 T2 H5 Live	203.76	407.52	22	22.04	44.08	Ornamentation	Microsphere
+OA2	pH 7.6	H5	Live	OA2 T2 H5 Live	190.48	380.96	21	16.61	33.22	Ornamentation	Microsphere
+OA2	pH 7.6	H9	Dead	OA2 T2 H9 Dead	200.77	401.54	20	18.24	36.48	Ornamentation	Microsphere
+OA2	pH 7.6	H1	Live	OA2 T2 H1 Live	193.68	387.36	21	16.36	32.72	Ornamentation	Microsphere
+OA3	pH 7.6	H4	Live	OA3 T2 H4 Live	187.35	374.7	21	20.9	41.8	Ornamentation	Microsphere
+OA2	pH 7.6	H4	Live	OA2 T2 H4 Live	205.14	410.28	22	21.04	42.08	Ornamentation	Microsphere
+OA2	pH 8.1	H1	Live	OA2 T3 H1 Live	147.54	295.08	15	20.58	41.16	No ornamentation	Megalosphere
+OA2	pH 8.1	H5	Live	OA2 T3 H5 Live	166.33	332.66	16	22.29	44.58	No ornamentation	Megalosphere
+OA3	pH 8.1	H1	Dead	OA3 T3 H1 Dead	145.79	291.58	11	33.29	66.58	No Ornamentation	Megalosphere
+OA2	pH 8.1	H3	Dead	OA2 T3 H3 Dead	166.88	333.76	19	30.51	61.02	No ornamentation	Megalosphere
+OA2	pH 8.1	H2	Dead	OA2 T3 H2 Dead	177.34	354.68	13	32.28	64.56	No ornamentation (except in last chamber)	Megalosphere
+OA2	pH 8.1	H3	Live	OA2 T3 H3 Live	186.82	373.64	13	33.42	66.84	No ornamentation	Megalosphere
+OA3	pH 8.1	H5	Dead	OA3 T3 H5 Dead	190.11	380.22	16	27.22	54.44	No Ornamentation	Megalosphere
+OA2	pH 8.1	H2	Live	OA2 T3 H2 Live	203.82	407.64	16	27.56	55.12	No ornamentation	Megalosphere
+OA2	pH 8.1	H6	Live	OA2 T3 H6 Live	231.43	462.86	17	36.34	72.68	No ornamentation	Megalosphere
+OA3	pH 8.1	H4	Dead	OA3 T3 H4 Dead	177.16	354.32	20	15.77	31.54	Ornamentation	Microsphere
+OA3	pH 8.1	H3	Dead	OA3 T3 H3 Dead	158.88	317.76	15	22.71	45.42	Ornamentation	Microsphere
+OA3	pH 8.1	H2	Dead	OA3 T3 H2 Dead	149.65	299.3	23	20.92	41.84	Ornamentation	Microsphere
+OA3	pH 8.1	H3	Live	OA3 T3 H3 Live	175.06	350.12	21	20.72	41.44	Ornamentation	Microsphere
+OA2	pH 8.1	H4	Live	OA2 T3 H4 Live	166.46	332.92	16	22.33	44.66	Ornamentation (some sutures)	Microsphere
+OA2	pH 8.1	H7	Dead	OA2 T3 H7 Dead	187.29	374.58	18	22.81	45.62	Ornamentation	Microsphere
+OA3	pH 8.1	H5	Live	OA3 T3 H5 Live	200.35	400.7	21	20.77	41.54	Ornamentation	Microsphere
+OA2	pH 8.1	H6	Dead	OA2 T3 H6 Dead	208.38	416.76	24	18.53	37.06	Ornamentation	Microsphere
+OA3	pH 8.1	H1	Live	OA3 T3 H1 Live	191.93	383.86	20	19.1	38.2	Ornamentation	Microsphere
+OA3	pH 8.1	H6	Dead	OA3 T3 H6 Dead	219.65	439.3	26	18.25	36.5	Ornamentation	Microsphere
+OA2	Untreated	H1	Live	OA2 C1 H1 Live	148.55	297.1	13	22.77	45.54	No ornamentation (except in last chamber)	Megalosphere
+OA2	Untreated	H5	Live	OA2 C1 H5 Live	196.61	393.22	14	31.77	63.54	No ornamentation	Megalosphere
+OA2	Untreated	H2	Live	OA2 C1 H2 Live	188.51	377.02	14	32.71	65.42	No ornamentation	Megalosphere
+OA2	Untreated	H4	Live	OA2 C1 H4 Live	212.08	424.16	16	32.42	64.84	No ornamentation	Megalosphere
+OA3	Untreated	H2	Live	OA3 C1 H2 Live	121.02	242.04	15	18.58	37.16	Some ornamentation	Microsphere
+OA3	Untreated	H6	Live	OA3 C1 H6 Live	127.14	254.28	15	17.33	34.66	Some ornamentation	Microsphere
+OA3	Untreated	H7	Live	OA3 C1 H7 Live	134.43	268.86	17	17.97	35.94	Ornamentation	Microsphere
+OA2	Untreated	H7	Live	OA2 C1 H7 Live	165.04	330.08	18	19.22	38.44	Ornamentation	Microsphere
+OA3	Untreated	H8	Live	OA3 C1 H8 Live	159.08	318.16	18	19.08	38.16	Some ornamentation	Microsphere
+OA2	Untreated	H6	Live	OA2 C1 H6 Live	162.49	324.98	22	8.21	16.42	Ornamentation	Microsphere
+OA2	Untreated	H3	Live	OA2 C1 H3 Live	181.38	362.76	20	19.7	39.4	Ornamentation	Microsphere
+OA3	Untreated	H1	Live	OA3 C1 H1 Live	180.51	361.02	22	16.66	33.32	Ornamentation	Microsphere
+OA3	Untreated	H4	Live	OA3 C1 H4 Live	199.07	398.14	20	23.15	46.3	Ornamentation	Microsphere
+OA2	Untreated	H8	Live	OA2 C1 H8 Live	211.69	423.38	22	21.3	42.6	Ornamentation	Microsphere
+OA2	pH 7.2	H1	Dead	OA2 T2 H1 Dead	158.89	317.78	13	25.86	51.72	No ornamentation	Megalosphere
+OA3	Untreated	H3	Live	OA3 C1 H3 Live	176.1	352.2	23	18.05	36.1	Ornamentation	Microsphere
+OA3	pH 7.2	H5	Live	OA3 T1 H5 Live	185.98	371.96	21	18.05	36.1	Some ornamentation	Microsphere
+OA3	pH 7.6	H4	Dead	OA3 T2 H4 Dead	203.38	406.76	16	30.09	60.18	No ornamentation	Megalosphere
