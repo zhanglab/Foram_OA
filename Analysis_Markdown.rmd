@@ -178,6 +178,8 @@ plot_grid(plot, legend, ncol=2, rel_widths=c(0.75,0.25))
 ## Compare all treatments, including the control treatment
 This chunk will read in all of the thickness data and associate it with the metadata found in the metadata_supp.tsv file.
 ```{r pressure, echo=FALSE, results='hide'}
+path <-("thicknessAnalysis")
+file.names<-list.files(path = path, pattern = "csv$") #list all the file names in the folder to get only get 
 # pH 7.1 and 8.1 live comparison
 meta <- read.csv("metadata_supp.tsv", header=TRUE, strip.white = TRUE, sep="\t")
 proloc = meta
