@@ -8,8 +8,10 @@ This git repository is designed to guide to user through the analysis of X-Ray m
 
 The data for this analysis is hosted on [figshare](https://figshare.com/account/login#/projects/221938). Download the data with the desired method (_e.g._ direct download, curl, figshare api, etc), move them into the current working directory at the top of the git repository, and decompress the data using the following command 
 ```
-tar -xf waterAnalysis.tar -c waterAnalysis
-tar -xf thicknessData.tar -c thicknessData
+tar -vzf waterAnalysis.tar.gz -c waterAnalysis
+tar -xvzf thicknessData.tar.gz
+mkdir thicknessAnalysis
+mv nese/zhanglab/OSN_pod/NB_forams/OA\ Images/Shell_Analysis/Shell_Analysis/OA* thicknessAnalysis/
 ```
 
 At this point, all of the data should be prepared for analysis.
