@@ -11,7 +11,7 @@ knitr::opts_chunk$set(echo = TRUE)
 
 # Thickness analysis
 
-This file documents the analysis for the shell thickness data from the second replicate of the OA experiment.
+This file documents the analysis for the shell thickness data from both replicates of the OA experiment.
 The first chunk loads required packages and defines the file locations.
 
 ```{r cars}
@@ -21,17 +21,18 @@ library(dplyr)
 library(sjstats)
 library(grid)
 library(cowplot)
-#OA2_T1_H1_Z1 <- read.csv("C:\Users\YZLab\Desktop\Alberto\Shell_Analysis", sep=";")
 path <-("thicknessData")
-file.names<-list.files(path = path, pattern = "csv$") #list all the file names in the folder to get only get the csv files
+file.names<-list.files(path = path, pattern = "csv$") #list all the file names in the folder to get only get 
 ```
 
 # Water Chemistry Analysis
+This chunk runs some basic analysis on the water chemistry data to generate table S2 and generates plot 5C.
+This outputs a table in the working directory: Seawater_chemistry_table_Output_All.csv
 ```{r}
 
 library(seacarb)
 
-path2 = '/nese/zhanglab/cpowers/NB_Forams/NB_Forams/13_OA_Experiment/waterAnalysis/calibrations'
+path2 = 'waterAnalysis/calibrations'
 file.names<-list.files(path = path2, pattern = "csv$") #list all the file names in the folder to get only get the csv files
 file.names
 pH.cals <- data.frame(matrix(NA, nrow=length(file.names), ncol=3, dimnames=list(file.names,c("Date", "Intercept", "Slope")))) #generate a 3 column dataframe with specific column names
@@ -52,7 +53,7 @@ pH.cals #view data
 R <- 8.31447215 #gas constant in J mol-1 K-1 
 F <-96485.339924 #Faraday constant in coulombs mol-1
 #read in probe measurements of pH, temperature, and salinity from tanks
-daily <- read.csv("/nese/zhanglab/cpowers/NB_Forams/NB_Forams/13_OA_Experiment/waterAnalysis/Daily.tsv", header=TRUE, sep="\t", na.strings="NA") #load data with a header, separated by commas, with NA as NA
+daily <- read.csv("waterAnalysis/Daily.tsv", header=TRUE, sep="\t", na.strings="NA") #load data with a header, separated by commas, with NA as NA
 SW.chem <- merge(pH.cals, daily, by="Calib.Date")
 SW.chem$pH.total = 0
 for (i in 1:nrow(SW.chem)) {
@@ -60,9 +61,7 @@ for (i in 1:nrow(SW.chem)) {
   SW.chem[i,]$pH.total =  pHconv(flag=1, pH=SWS, T=SW.chem[i,]$Temperature, S=SW.chem[i,]$Salinity )
 }
 
-#TA <- read.csv("/nese/zhanglab/cpowers/NB_Forams/NB_Forams/13_OA_Experiment/waterAnalysis/Daily.tsv", header=TRUE, sep="\t", na.strings="NA") #load data with a header, separated by commas, with NA as NA
-#SW.chem <- merge(SW.chem,TA, by="ID", all = TRUE, sort = T) #merge seawater chemistry with total alkalinity
-#SW.chem <- na.omit(SW.chem$pH.total) #remove NA
+
 SW.chem = SW.chem[!is.na(SW.chem$TA),]
 carb.output <- carb(flag=8, var1=SW.chem$pH.total, var2=SW.chem$TA/1000000, S= SW.chem$Salinity, T=SW.chem$Temperature, P=0, Pt=0, Sit=0, pHscale="T", kf="pf", k1k2="l", ks="d") #calculate seawater chemistry parameters using seacarb
 carb.output$ALK <- carb.output$ALK*1000000 #convert to µmol kg-1
@@ -75,7 +74,7 @@ carb.output <- cbind(SW.chem$ID,  SW.chem$Day, SW.chem$Tank, SW.chem$Treatment, 
 colnames(carb.output) <- c("ID",  "Day", "Tank","Treatment","Salinity",	"Temperature","pH",	"CO2",	"pCO2","HCO3",	"CO3",	"DIC", "TA",	"Aragonite.Sat" , "Calcite.Sat") #Rename columns to describe contents
 View(carb.output)
 
-write.table(carb.output, "/nese/zhanglab/cpowers/NB_Forams/NB_Forams/13_OA_Experiment/waterAnalysis/Seawater_chemistry_table_Output_All.csv", sep=",", row.names = FALSE, quote=FALSE)
+write.table(carb.output, "waterAnalysis/Seawater_chemistry_table_Output_All.csv", sep=",", row.names = FALSE, quote=FALSE)
 library(plyr)
 # Total
 carbo.melted <- melt(carb.output) #reshape the dataframe to more easily summarize all output parameters
@@ -157,9 +156,6 @@ plot = ggplot() +  theme_classic() +
   geom_point(data=t1_subset, aes(x=pH, y=Calcite.Sat), colour="firebrick", size=3) + 
   geom_point(data=t2_subset, aes(x=pH, y=Calcite.Sat), colour="goldenrod", size=3) + 
   geom_point(data=t3_subset, aes(x=pH, y=Calcite.Sat), color="dodgerblue3", size=3) + 
-#  geom_line(data=temp_df_t1, aes(x=pH, y=CalcSat), colour="firebrick", size=1) + 
-#  geom_line(data=temp_df_t2, aes(x=pH, y=CalcSat), colour="goldenrod", size=1) + 
-#  geom_line(data=temp_df_t3, aes(x=pH, y=CalcSat), colour="dodgerblue3", size=1) +
   geom_segment(data=t1_subset,x = -Inf, xend=8.05, y = 1, yend=1, colour = "black", size = 1) +
   geom_segment(data=t1_subset,x = -Inf, xend=8.05, y = mean(t1_subset$Calcite.Sat), yend=mean(t1_subset$Calcite.Sat), colour = "firebrick", size = 1, linetype="dashed") +
   geom_segment(data=t1_subset,x = -Inf, xend=8.05, y = mean(t2_subset$Calcite.Sat), yend=mean(t2_subset$Calcite.Sat), colour = "goldenrod", size = 1, linetype="dashed") +
@@ -169,17 +165,18 @@ plot = ggplot() +  theme_classic() +
                   arrow = arrow(length = unit(0.5, "cm")))+ 
   geom_segment(aes(x = 8.075 , y = 0.95, xend = 8.075, yend = -0.1),
                   arrow = arrow(length = unit(0.5, "cm"))) +
-  annotate("text", x=8.11, y=0.5, label= "Dissolution", angle = 90, size=5) +
-  annotate("text", x=8.11, y=2, label= "Deposition", angle = 90, size=5)
+  annotate("text", x=8.115, y=0.5, label= "Dissolution", angle = 90, size=5) +
+  annotate("text", x=8.115, y=2, label= "Precipitation", angle = 90, size=5)
 
 legend_plot=ggplot(carb.output, aes(x=pH, y=Calcite.Sat, col=Tank)) + geom_line()+
-  scale_color_manual(name="Treatment",labels=c("High","Moderate","None", "Saturation"),values=c("firebrick","goldenrod","dodgerblue3"))+ theme_classic() + theme(text = element_text(size=20))
+  scale_color_manual(name="Treatment",labels=c(expression("High"~italic(p)*"CO"[2]),expression("Moderate"~italic(p)*"CO"[2]),expression("No"~italic(p)*"CO"[2]), "Saturation"),values=c("firebrick","goldenrod","dodgerblue3"))+ theme_classic() + theme(text = element_text(size=20))
 legend=get_legend(legend_plot)
-plot_grid(plot, legend, ncol=2, rel_widths=c(1,0.25))
+plot_grid(plot, legend, ncol=2, rel_widths=c(0.75,0.25))
 ```
 
 
 ## Compare all treatments, including the control treatment
+This chunk will read in all of the thickness data and associate it with the metadata found in the metadata_supp.tsv file.
 ```{r pressure, echo=FALSE, results='hide'}
 # pH 7.1 and 8.1 live comparison
 meta <- read.csv("metadata_supp.tsv", header=TRUE, strip.white = TRUE, sep="\t")
@@ -211,7 +208,11 @@ for(i in 1:length(file.names[1:length(file.names)])) { # for every file in list 
   if (cell != "OA2 T3 H5 Dead" ) { # This may be an elphidium shell that snuck into the analysis
     if (cell != "OA3 C1 H4 Live" ) { # 
   Data$Shell.Diameter = meta[meta$ID == cell,]$Shell.Diameter
-  Data$Repoductive = meta[meta$ID == cell,]$ReproductiveStage
+  if (as.numeric(meta[meta$ID == cell,]$Proloculus.Diameter) > 55) { 
+    Data$Repoductive = "Megalosphere"
+  } else {
+    Data$Repoductive = "Microsphere"
+  }
   Data$Batch = names[1]
   
   shell2 <- as.data.frame(Data)
@@ -224,37 +225,151 @@ shell$ThickAdjust = (shell$Thickness..mm.*1000)/as.numeric(shell$Shell.Diameter)
 
 shell[shell$pH == "Control",]$State = "Control"
 ```
-# Test analysis Ying wanted
+
+
+
+# Figure S2
+This chunk runs some analysis and generates Figure S2 and the associated stats
 ```{r}
-lm = aov(shell$ThickAdjust ~ shell$Repoductive + shell$cell)
+pH7p2 = shell[shell$pH == 7.2 & shell$State == "Live",]
+
+lm = aov(data = pH7p2, ThickAdjust ~ Repoductive)
 summary(lm)
-effectsize::eta_squared(lm, partial=F)
+eta = effectsize::eta_squared(lm, partial=F)
+eta
+meg = pH7p2[pH7p2$Repoductive == "Megalosphere",]
+meg$rel = meg$ThickAdjust/sum(meg[meg$Repoductive == "Megalosphere",]$ThickAdjust)
+mic = pH7p2[pH7p2$Repoductive == "Microsphere",]
+mic$rel = mic$ThickAdjust/sum(mic[mic$Repoductive == "Microsphere",]$ThickAdjust)
+pH7p2 = rbind(mic, meg)
+p1 = ggplot(pH7p2, aes(x=ThickAdjust, fill=Repoductive)) + 
+  geom_histogram(data=(subset(pH7p2,Repoductive == "Megalosphere")), aes(y=..count../nrow(meg)), alpha=0.5, binwidth=0.002) +
+  geom_histogram(data=(subset(pH7p2,Repoductive == "Microsphere")), aes(y=..count../nrow(mic)), alpha=0.5, binwidth=0.002) + theme_classic() + ggtitle(expression("A. High"~italic(p)*"CO"[2]~"Live")) + xlab("Normalized Thickness") + ylab("Relative Frequency")
+anno1 = paste("Effect Size of Reproductive State:", round(eta[1,2], digits=2))
+grob1 <- grobTree(textGrob(anno1, x=0.95,  y=0.9, hjust=1,
+  gp=gpar(col="black", fontsize=8, fontface="italic")))
+# Plot
+p1 = p1 + annotation_custom(grob1)
+p1 
+ggsave(plot=p1, file="figures/FigS2A.svg", width=5,height=3)
 
-ggplot(shell, aes(x=ThickAdjust, fill=Repoductive)) + geom_histogram()
+# Dead cells
+pH7p2 = shell[shell$pH == 7.2 & shell$State == "Dead",]
 
+lm = aov(data = pH7p2, ThickAdjust ~ Repoductive)
+summary(lm)
+eta = effectsize::eta_squared(lm, partial=F)
+eta
+meg = pH7p2[pH7p2$Repoductive == "Megalosphere",]
+meg$rel = meg$ThickAdjust/sum(meg[meg$Repoductive == "Megalosphere",]$ThickAdjust)
+mic = pH7p2[pH7p2$Repoductive == "Microsphere",]
+mic$rel = mic$ThickAdjust/sum(mic[mic$Repoductive == "Microsphere",]$ThickAdjust)
+pH7p2 = rbind(mic, meg)
+p2 = ggplot(pH7p2, aes(x=ThickAdjust, fill=Repoductive)) + 
+  geom_histogram(data=(subset(pH7p2,Repoductive == "Megalosphere")), aes(y=..count../nrow(meg)), alpha=0.5, binwidth=0.002) +
+  geom_histogram(data=(subset(pH7p2,Repoductive == "Microsphere")), aes(y=..count../nrow(mic)), alpha=0.5, binwidth=0.002) + theme_classic() + ggtitle(expression("B. High"~italic(p)*"CO"[2]~"Dead")) + xlab("Normalized Thickness") + ylab("Relative Frequency")
+
+anno1 = paste("Effect Size of Reproductive State:", round(eta[1,2], digits=2))
+grob1 <- grobTree(textGrob(anno1, x=0.95,  y=0.9, hjust=1,
+  gp=gpar(col="black", fontsize=8, fontface="italic")))
+# Plot
+p2 = p2 + annotation_custom(grob1)
+p2
+ggsave(plot=p2, file="figures/FigS2B.svg", width=5,height=3)
+
+# Dead cells
+pH7p6 = shell[shell$pH == 7.6 & shell$State == "Dead",]
+
+lm = aov(data = pH7p6, ThickAdjust ~ Repoductive)
+summary(lm)
+eta = effectsize::eta_squared(lm, partial=F)
+eta
+meg = pH7p6[pH7p6$Repoductive == "Megalosphere",]
+meg$rel = meg$ThickAdjust/sum(meg[meg$Repoductive == "Megalosphere",]$ThickAdjust)
+mic = pH7p6[pH7p6$Repoductive == "Microsphere",]
+mic$rel = mic$ThickAdjust/sum(mic[mic$Repoductive == "Microsphere",]$ThickAdjust)
+pH7p2 = rbind(mic, meg)
+p3 = ggplot(pH7p6, aes(x=ThickAdjust, fill=Repoductive)) + 
+  geom_histogram(data=(subset(pH7p6,Repoductive == "Megalosphere")), aes(y=..count../nrow(meg)), alpha=0.5, binwidth=0.002) +
+  geom_histogram(data=(subset(pH7p6,Repoductive == "Microsphere")), aes(y=..count../nrow(mic)), alpha=0.5, binwidth=0.002) + theme_classic() + ggtitle(expression("C. Moderate"~italic(p)*"CO"[2]~"Dead"))+ xlab("Normalized Thickness") + ylab("Relative Frequency")
+
+anno1 = paste("Effect Size of Reproductive State:", round(eta[1,2], digits=2))
+grob1 <- grobTree(textGrob(anno1, x=0.95,  y=0.9, hjust=1,
+  gp=gpar(col="black", fontsize=8, fontface="italic")))
+# Plot
+p3 = p3 + annotation_custom(grob1)
+p3
+ggsave(plot=p3, file="figures/FigS2C.svg", width=5,height=3)
+
+pH8p1 = shell[shell$pH == 8.1 & shell$State == "Live",]
+
+lm = aov(data = pH8p1, ThickAdjust ~ Repoductive)
+summary(lm)
+eta = effectsize::eta_squared(lm, partial=F)
+eta
+
+meg = pH8p1[pH8p1$Repoductive == "Megalosphere",]
+meg$rel = meg$ThickAdjust/sum(meg[meg$Repoductive == "Megalosphere",]$ThickAdjust)
+mic = pH8p1[pH8p1$Repoductive == "Microsphere",]
+mic$rel = mic$ThickAdjust/sum(mic[mic$Repoductive == "Microsphere",]$ThickAdjust)
+pH8p1 = rbind(mic, meg)
+p4 = ggplot(pH8p1, aes(x=ThickAdjust, fill=Repoductive)) + 
+  geom_histogram(data=(subset(pH8p1,Repoductive == "Megalosphere")), aes(y=..count../nrow(meg)), alpha=0.5, binwidth=0.002) +
+  geom_histogram(data=(subset(pH8p1,Repoductive == "Microsphere")), aes(y=..count../nrow(mic)), alpha=0.5, binwidth=0.002) + theme_classic() + ggtitle(expression("D. No"~italic(p)*"CO"[2]~"Live")) + xlab("Normalized Thickness") + ylab("Relative Frequency")
+anno1 = paste("Effect Size of Reproductive State:", round(eta[1,2], digits=2))
+grob1 <- grobTree(textGrob(anno1, x=0.95,  y=0.9, hjust=1,
+  gp=gpar(col="black", fontsize=8, fontface="italic")))
+# Plot
+p4 = p4 + annotation_custom(grob1)
+p4
+ggsave(plot=p4, file="figures/FigS2D.svg", width=5,height=3)
+# Dead cells
+pH8p1 = shell[shell$pH == 8.1 & shell$State == "Dead",]
+
+lm = aov(data = pH8p1, ThickAdjust ~ Repoductive)
+summary(lm)
+eta = effectsize::eta_squared(lm, partial=F)
+eta
+
+meg = pH8p1[pH8p1$Repoductive == "Megalosphere",]
+meg$rel = meg$ThickAdjust/sum(meg[meg$Repoductive == "Megalosphere",]$ThickAdjust)
+mic = pH8p1[pH8p1$Repoductive == "Microsphere",]
+mic$rel = mic$ThickAdjust/sum(mic[mic$Repoductive == "Microsphere",]$ThickAdjust)
+pH7p2 = rbind(mic, meg)
+p5 = ggplot(pH8p1, aes(x=ThickAdjust, fill=Repoductive)) + 
+  geom_histogram(data=(subset(pH8p1,Repoductive == "Megalosphere")), aes(y=..count../nrow(meg)), alpha=0.5, binwidth=0.002) +
+  geom_histogram(data=(subset(pH8p1,Repoductive == "Microsphere")), aes(y=..count../nrow(mic)), alpha=0.5, binwidth=0.002) + theme_classic() + ggtitle(expression("E. No"~italic(p)*"CO"[2]~"Dead"))+ xlab("Normalized Thickness") + ylab("Relative Frequency")
+
+anno1 = paste("Effect Size of Reproductive State:", round(eta[1,2], digits=2))
+grob1 <- grobTree(textGrob(anno1, x=0.95,  y=0.9, hjust=1,
+  gp=gpar(col="black", fontsize=8, fontface="italic")))
+# Plot
+p5 = p5 + annotation_custom(grob1)
+p5
+ggsave(plot=p5, file="figures/FigS2E.svg", width=5,height=3)
+grid.arrange(p1,p2,p3,p4,p5)
 ```
 
+# Generate Figure S1A
+This chunk generates a histogram that shows the two populations of cells. This is Figure S1A
 ```{r}
-shell= shell[shell$Repoductive == "Microsphere",]
+ggplot(proloc, aes(x=Proloculus.Diameter)) + 
+  geom_histogram(aes(y= after_stat(density)), alpha=0.5, binwidth=5) + geom_density() +
+  theme_classic() + xlab("proloculus size (uM)") + ylab("relative frequency") + geom_vline(xintercept=55, color = "red")
 ```
 
-# Case 1: Combined Data
-
-```{r}
-
-shell_total = shell
-```
-
-
-## Figure 2
-### Comparison of microspheric and megalospheric cells
-## Analysis of proloculus and chamber count
+# Figure 2
+Comparison of microspheric and megalospheric cells
+Analysis of proloculus and chamber count
 ```{r}
 proloc <- meta
 
+proloc[as.numeric(proloc$Proloculus.Diameter) > 55,]$ReproductiveStage = "Megalosphere"
+proloc[as.numeric(proloc$Proloculus.Diameter) <= 55,]$ReproductiveStage = "Microsphere"
+
 proloc[proloc$tank == "Untreated",]$Control = "Control"
 proloc$Treatment = "X"
-proloc[proloc$Control == "Control",]$Treatment = "No Treatment"
+proloc[proloc$Control == "Control",]$Treatment = "Untreated"
 proloc[proloc$Control == "Live",]$Treatment = "Live"
 proloc[proloc$Control == "Dead",]$Treatment = "Dead"
 proloc$Growth = "X"
@@ -280,9 +395,9 @@ g1=ggplot(proloc) +
   geom_density_2d(aes(x=Nchamber, y=Proloculus.Diameter, color=ReproductiveStage),alpha=.5,linemitre = 100) + 
   theme_classic() + 
   ylab(expression(paste("Proloculus Diameter (",mu,"m)"))) + xlab("Number of Chambers") +
-  theme(text = element_text(size = 16)) + ggtitle("A.")+ labs(colour = "Cell Type") 
+  theme(text = element_text(size = 16)) + ggtitle("A.")+ labs(colour = "Life Stage") 
 #g1 = g1 + theme(legend.position="none")
-ggsave(plot = g1, file="/nese/zhanglab/cpowers/NB_Forams/NB_Forams/13_OA_Experiment/figures/Fig2A.svg", width=4.5, height=3)
+ggsave(plot = g1, file="figures/Fig2A.svg", width=4.5, height=3)
 
 lm = aov(as.numeric(proloc$Nchamber)~proloc$ReproductiveStage)
 summary(lm)
@@ -297,15 +412,15 @@ g2=ggplot(proloc) +
   geom_smooth(aes(x=Nchamber, y=as.numeric(Shell.Diameter), color=ReproductiveStage),alpha=.5,linemitre = 100, method = "lm") + 
   theme_classic() + 
   ylab(expression(paste("Test Diameter (",mu,"m)"))) + xlab("Number of Chambers") +
-  theme(text = element_text(size = 16)) + ggtitle("B.")+ labs(colour = "Cell Type")
-anno1 = paste("p-values:", "\nChambers: < 0.001***\nDiameter:", "0.795")
+  theme(text = element_text(size = 16)) + ggtitle("B.")+ labs(colour = "Life Stage")
+anno1 = paste("p-values:", "\nChambers: < 0.001***\nDiameter:", "0.51")
 grob1 <- grobTree(textGrob(anno1, x=0.95,  y=0.1, hjust=1,
   gp=gpar(col="black", fontsize=9, fontface="italic")))
 g2 = g2 + annotation_custom(grob1)
 
 legend1 = get_legend(g2 + theme(legend.box.margin = margin(0, 0, 0, 12)))
 g2 = g2 #+  theme(legend.position="none")
-ggsave(plot = g2, file="/nese/zhanglab/cpowers/NB_Forams/NB_Forams/13_OA_Experiment/figures/Fig2B.svg", width=4.5, height=3)
+ggsave(plot = g2, file="figures/Fig2B.svg", width=4.5, height=3)
 
 print("dead microsphere")
 d_micro = proloc[proloc$Treatment=="Not Growing" & proloc$ReproductiveStage == "Microsphere",]$Nchamber
@@ -346,10 +461,9 @@ reproductive_p = summary(lm)[[1]][["Pr(>F)"]][2]
 g3 = ggplot(proloc) + 
   geom_boxplot(aes(x=ReproductiveStage, y=Nchamber, fill=Treatment), size = 1) + 
   theme_classic()  +
-  ylab(expression(paste("Number of Chambers"))) + xlab("Cell Type") +
-  theme(text = element_text(size = 16)) + ggtitle("C.")
-#g1 = g1 + theme(legend.position="none")
-#ggsave(plot = g1, file="/nese/zhanglab/cpowers/NB_Forams/NB_Forams/13_OA_Experiment/figures/Fig2A.svg", width=4.5, height=3)
+  ylab(expression(paste("Number of Chambers"))) + xlab("Life Stage") +
+  theme(text = element_text(size = 16)) + ggtitle("C.") + scale_fill_manual(values = c( "green4", "gray25"))
+
 anno1 = paste("p-values:", "\nTreatment: ",round(Treatment_p, digits=3),"**\nCell Type:", "<0.001***")
 grob1 <- grobTree(textGrob(anno1, x=0.1,  y=0.9, hjust=0,
   gp=gpar(col="black", fontsize=9, fontface="italic")))
@@ -368,149 +482,23 @@ summary(lm)
 lm = aov(as.numeric(proloc$Shell.Diameter)~proloc$ReproductiveStage)
 summary(lm)
 
-ggsave(plot = totalPlot, file="/nese/zhanglab/cpowers/NB_Forams/NB_Forams/13_OA_Experiment/figures/Fig2.svg", width=8, height=6)
+ggsave(plot = totalPlot, file="figures/Fig2.svg", width=10, height=7)
 ```
 
-# Not for paper
+# Subset the data to only the microspheric data based on the microspheric/megalospheric analysis
+This is necessary for the remaining analysis
 ```{r}
-print("Growth analysis")
-Growth <- read.csv("/nese/zhanglab/cpowers/NB_Forams/NB_Forams/13_OA_Experiment/growthData/Test_Growth_Batch2.csv", sep="\t")
-Growth = Growth[Growth$Xray.Proloculus.Diameter != 0,]
-model = aov(Growth$Difference ~ Growth$Live.Vs.Dead*Growth$Reproductive.Stage.Post)
-summary(model)
-effectsize::eta_squared(model, partial=F)
-#Anova not appropriate due to distribution. Use Kruskal-Wallis
-model = kruskal.test(Growth$Difference ~ Growth$Live.Vs.Dead)
-model
-
-micro = Growth[Growth$Reproductive.Stage.Post == "Microspheric",]
-model = kruskal.test(micro$Difference ~ micro$Live.Vs.Dead)
-model
-
-megalo = Growth[Growth$Reproductive.Stage.Post == "Megalospheric",]
-model = kruskal.test(megalo$Difference ~ megalo$Live.Vs.Dead)
-model
-
-# I dont think we have enough statistical power to actually pick up on the differences between the live and the dead cells. when the amount of growth is considered. Try a chi square for live vs dead
-# Chi square analysis
-data <- matrix(c(5, 7, 0, 12), ncol=2, byrow=TRUE)
-colnames(data) <- c("Growth","No Growth")
-rownames(data) <- c("Live","Dead")
-data = as.table(data)
-chisq.test(data)
-
-# Running the same stats as were run on the experimental ones
-lm = aov(as.numeric(Growth$N.Chambers)~Growth$Live.Vs.Dead*Growth$Reproductive.Stage.Post)
-effectsize::eta_squared(lm, partial=F)
-summary(lm)
-
-summary(Growth[Growth$Reproductive.Stage.Post == "Microspheric" & Growth$Live.Vs.Dead == "Live",]$N.Chambers)
-summary(Growth[Growth$Reproductive.Stage.Post == "Microspheric" & Growth$Live.Vs.Dead == "Dead",]$N.Chambers)
-summary(Growth[Growth$Reproductive.Stage.Post == "Megalospheric" & Growth$Live.Vs.Dead == "Live",]$N.Chambers)
-summary(Growth[Growth$Reproductive.Stage.Post == "Megalospheric" & Growth$Live.Vs.Dead == "Dead",]$N.Chambers)
-
-g3=ggplot(Growth, aes(x=Live.Vs.Dead, y=Difference, col=Reproductive.Stage.Post)) + ylab(expression(paste(mu,"m of growth"))) + xlab("Live vs Dead") + 
-  theme_classic()  + geom_boxplot(width=0.5)+ theme(text = element_text(size = 16)) + ggtitle("C.")
-g3 = g3 +  theme(legend.position="none")
-ggsave(plot = g3, file="/nese/zhanglab/cpowers/NB_Forams/NB_Forams/13_OA_Experiment/figures/Fig2B.svg", width=3, height=3)
-
-totalPlot = plot_grid(g1, g2, g3,legend1, ncol=4, rel_widths=c(1,1,1,0.5))
-totalPlot
-
-
-ggplot(Growth) + 
-  geom_point(aes(x=N.Chambers, y=Xray.Proloculus.Diameter, color=Reproductive.Stage.Post, shape=Live.Vs.Dead), size = 2.5) + 
-  geom_density_2d(aes(x=N.Chambers, y=Xray.Proloculus.Diameter, color=Reproductive.Stage.Post),alpha=.5,linemitre = 100) + 
-  theme_classic() + 
-  ylab(expression(paste("Proloculus Diameter (",mu,"m)"))) + xlab("Number of Chambers") +
-  theme(text = element_text(size = 16))
-```
-
-# test analysis. Not part of paper
-```{r}
-# simulate growth
-growth = data.frame()
-proloc2 = proloc
-proloc2$Chambers.Added=0
-growth2 = proloc2
-
-
-proloc <- meta
-proloc[proloc$tank == "Untreated",]$Control = "Control"
-proloc$Growth = "X"
-proloc[proloc$Control == "Control",]$Growth = "Not Growing"
-proloc[proloc$Control == "Live",]$Growth = "Growing"
-proloc[proloc$Control == "Dead",]$Growth = "Not Growing"
-
-lm = aov(as.numeric(proloc$Nchamber)~proloc$Growth+proloc$ReproductiveStage)
-summary(lm)
-growth = rbind(growth, c("0", effectsize::eta_squared(lm, partial=F)[1,2]))
-
-proloc[proloc$Growth == "Not Growing",]$Nchamber = proloc[proloc$Growth == "Not Growing",]$Nchamber+1
-lm = aov(as.numeric(proloc$Nchamber)~proloc$Growth+proloc$ReproductiveStage)
-summary(lm)
-effectsize::eta_squared(lm, partial=F)[1,2]
-growth = rbind(growth, c("1", effectsize::eta_squared(lm, partial=F)[1,2]))
-proloc2 = proloc
-proloc2$Chambers.Added=0
-growth2 = rbind(growth2, proloc2)
-
-proloc[proloc$Growth == "Not Growing",]$Nchamber = proloc[proloc$Growth == "Not Growing",]$Nchamber+1
-lm = aov(as.numeric(proloc$Nchamber)~proloc$Growth+proloc$ReproductiveStage)
-summary(lm)
-effectsize::eta_squared(lm, partial=F)[1,2]
-growth = rbind(growth, c("2", effectsize::eta_squared(lm, partial=F)[1,2]))
-proloc2 = proloc
-proloc2$Chambers.Added=1
-growth2 = rbind(growth2, proloc2)
-
-proloc[proloc$Growth == "Not Growing",]$Nchamber = proloc[proloc$Growth == "Not Growing",]$Nchamber+1
-lm = aov(as.numeric(proloc$Nchamber)~proloc$Growth+proloc$ReproductiveStage)
-summary(lm)
-effectsize::eta_squared(lm, partial=F)[1,2]
-growth = rbind(growth, c("3", effectsize::eta_squared(lm, partial=F)[1,2]))
-proloc2 = proloc
-proloc2$Chambers.Added=2
-growth2 = rbind(growth2, proloc2)
-
-proloc[proloc$Growth == "Not Growing",]$Nchamber = proloc[proloc$Growth == "Not Growing",]$Nchamber+1
-lm = aov(as.numeric(proloc$Nchamber)~proloc$Growth+proloc$ReproductiveStage)
-summary(lm)
-effectsize::eta_squared(lm, partial=F)[1,2]
-growth = rbind(growth, c("4", effectsize::eta_squared(lm, partial=F)[1,2]))
-proloc2 = proloc
-proloc2$Chambers.Added=3
-growth2 = rbind(growth2, proloc2)
-
-proloc[proloc$Growth == "Not Growing",]$Nchamber = proloc[proloc$Growth == "Not Growing",]$Nchamber+1
-lm = aov(as.numeric(proloc$Nchamber)~proloc$Growth+proloc$ReproductiveStage)
-summary(lm)
-effectsize::eta_squared(lm, partial=F)[1,2]
-growth = rbind(growth, c("5", effectsize::eta_squared(lm, partial=F)[1,2]))
-proloc2 = proloc
-proloc2$Chambers.Added=4
-growth2 = rbind(growth2, proloc2)
-
-colnames(growth) = c("Chambers", "Effect")
-growth
-
-g4 = ggplot(growth, aes(x=Chambers, y=as.numeric(Effect))) + geom_point(shape=23) + xlab("Number of Chambers Added") + 
-  ylab("Effect Size") + 
-  theme_classic() + 
-  geom_smooth() + ggtitle("B.") + 
-  theme(text = element_text(size = 16)) + 
-  geom_signif( annotations="*", xmin=1.9,xmax=2.1, y_position = 0.05, tip_length = 0, vjust=0.4, color = "gray25", size=0, textsize = 10) + 
-  geom_signif( annotations="*", xmin=2.9,xmax=3.1, y_position = 0.05, tip_length = 0, vjust=0.4, color = "gray25", size=0, textsize = 10)
-
-totalPlot = plot_grid(g1, g2, g4, g3, legend1, ncol=3, rel_widths=c(1,1,1))
-totalPlot
+shell= shell[shell$Repoductive == "Microsphere",]
+shell_total = shell
 ```
 
 ## Table 2
-### Comparison between the dead cells and the no-treatment control. 
-### This tests for the effects of dissolution
+Comparison between the dead cells and the no-treatment control. 
+This tests for the effects of dissolution
+
+Generates a table of effect sizes for both pH and individual variation.
 ```{r}
-shell2 = shell
+shell2 = shell_total
 print("Stats for the dead tests across pH levels")
 dead = shell2[shell2$State == "Dead",]
 dead8.1 = dead[dead$pH == 8.1,]
@@ -582,271 +570,11 @@ out_table_cell
 
 ```
 
-# Troubleshooting Figure 3
-```{r}
-shell = shell_total[shell_total$pH != "Control",]
-semi.r = function(y, x, given){  # this function will compute the semi-partial r
-  ryx  = cor(as.numeric(y), x)
-  ryg  = cor(as.numeric(y), given)
-  rxg  = cor(x, given)
-  num  = ryx - (ryg*rxg)
-  dnm  = sqrt( (1-rxg^2) )
-  sp.r = num/dnm
-  return(sp.r)
-}
-shell2 = shell
-shell2$chamberCount=0
-shell2[shell2$Chamber == "C1.csv",]$chamberCount = 1
-shell2[shell2$Chamber == "C2.csv",]$chamberCount = 2
-shell2[shell2$Chamber == "C3.csv",]$chamberCount = 3
-shell2[shell2$Chamber == "C4.csv",]$chamberCount = 4
-shell2[shell2$Chamber == "C5.csv",]$chamberCount = 5
-shell2[shell2$Chamber == "C6.csv",]$chamberCount = 6
-shell2[shell2$Chamber == "C7.csv",]$chamberCount = 7
-shell2[shell2$Chamber == "C8.csv",]$chamberCount = 8
 
-#shell2$batchCount=0
-#shell2[shell2$Chamber == "OA2",]$batchCount = 1
-#shell2[shell2$Chamber == "OA3",]$batchCount = 2
-
-print("Stats for the live tests across pH levels")
-live = shell2[shell2$State == "Live",]
-live8.1 = live[live$pH == 8.1,]
-live8.1$rel = live8.1$ThickAdjust/sum(live8.1[live8.1$pH == 8.1,]$ThickAdjust)
-live7.6 = live[live$pH == 7.6,]
-live7.6$rel = live7.6$ThickAdjust/sum(live7.6[live7.6$pH == 7.6,]$ThickAdjust)
-live7.2 = live[live$pH == 7.2,]
-live7.2$rel = live7.2$ThickAdjust/sum(live7.2[live7.2$pH == 7.2,]$ThickAdjust)
-live = rbind(live8.1, live7.6, live7.2)
-
-# Using just pH
-lm = lm(as.numeric(live$ThickAdjust) ~ as.numeric(live$pH))
-summary(lm)
-
-# Using pH and chamber count - linear model
-lm = lm(as.numeric(live$ThickAdjust) ~ as.numeric(live$pH) + live$chamberCount)
-summary(lm)
-semi = semi.r(as.numeric(live$ThickAdjust), as.numeric(live$pH), live$chamberCount)
-semi
-
-# Using pH and individual variation - linear model
-lm = lm(as.numeric(live$ThickAdjust) ~ as.numeric(live$pH) + live$cell)
-summary(lm)
-
-# Using pH and individual variation - linear model
-lm = lm(as.numeric(live$ThickAdjust) ~ as.numeric(live$pH) + live$cell + live$chamberCount)
-summary(lm)
-
-
-# Using pH and individual variation - ancova
-lm = aov(as.numeric(live$ThickAdjust) ~ as.numeric(live$pH) + live$cell + live$chamberCount)
-summary(lm)
-effectsize::eta_squared(lm, partial=F)
-
-live2 = live
-live3 = sample_n(live2, 10000)
-lm = aov(as.numeric(live3$ThickAdjust) ~ as.numeric(live3$pH) )
-summary(lm)
-plot(lm)
-effectsize::eta_squared(lm, partial=F)
-
-# Dead cells
-print("Stats for the dead tests across pH levels")
-dead = shell2[shell2$State == "Dead",]
-dead8.1 = dead[dead$pH == 8.1,]
-dead8.1$rel = dead8.1$ThickAdjust/sum(dead8.1[dead8.1$pH == 8.1,]$ThickAdjust)
-dead7.6 = dead[dead$pH == 7.6,]
-dead7.6$rel = dead7.6$ThickAdjust/sum(dead7.6[dead7.6$pH == 7.6,]$ThickAdjust)
-dead7.2 = dead[dead$pH == 7.2,]
-dead7.2$rel = dead7.2$ThickAdjust/sum(dead7.2[dead7.2$pH == 7.2,]$ThickAdjust)
-dead = rbind(dead8.1, dead7.6, dead7.2)
-lm = aov(as.numeric(dead$ThickAdjust) ~ as.numeric(dead$pH) + dead$cell + dead$chamberCount)
-summary(lm)
-effectsize::eta_squared(lm, partial=F)
-
-# Live 7.2 vs dead 7.2
-pH = rbind(live7.2, dead7.2)
-lm = aov(pH$ThickAdjust ~ pH$State + pH$cell + pH$Chamber)
-summary(lm)
-effectsize::eta_squared(lm, partial=F)
-
-# Live 7.6 vs dead 7.6
-pH = rbind(live7.6, dead7.6)
-lm = aov(pH$ThickAdjust ~ pH$State + pH$cell + pH$Chamber)
-summary(lm)
-effectsize::eta_squared(lm, partial=F)
-
-# Live 8.1 vs dead 8.1
-pH = rbind(live8.1, dead8.1)
-lm = aov(pH$ThickAdjust ~ pH$State + pH$cell + pH$Chamber)
-summary(lm)
-effectsize::eta_squared(lm, partial=F)
-
-# Try an ARTANOVA
-# Based on https://depts.washington.edu/acelab/proj/art/index.html
-# This breaks R
-#library(ARTool)
-#model <- art(ThickAdjust ~ as.factor(pH) * as.factor(cell) * as.factor(chamberCount), data=live
-#)
-#anova(model)
-```
-
-
-# Just chambers two-way ANOVA
-```{r}
-shell = shell_total[shell_total$pH != "Control",]
-semi.r = function(y, x, given){  # this function will compute the semi-partial r
-  ryx  = cor(as.numeric(y), x)
-  ryg  = cor(as.numeric(y), given)
-  rxg  = cor(x, given)
-  num  = ryx - (ryg*rxg)
-  dnm  = sqrt( (1-rxg^2) )
-  sp.r = num/dnm
-  return(sp.r)
-}
-shell2 = shell
-shell2$chamberCount=0
-shell2[shell2$Chamber == "C1.csv",]$chamberCount = 1
-shell2[shell2$Chamber == "C2.csv",]$chamberCount = 2
-shell2[shell2$Chamber == "C3.csv",]$chamberCount = 3
-shell2[shell2$Chamber == "C4.csv",]$chamberCount = 4
-shell2[shell2$Chamber == "C5.csv",]$chamberCount = 5
-shell2[shell2$Chamber == "C6.csv",]$chamberCount = 6
-shell2[shell2$Chamber == "C7.csv",]$chamberCount = 7
-shell2[shell2$Chamber == "C8.csv",]$chamberCount = 8
-
-#shell2$batchCount=0
-#shell2[shell2$Chamber == "OA2",]$batchCount = 1
-#shell2[shell2$Chamber == "OA3",]$batchCount = 2
-
-print("Stats for the live tests across pH levels")
-live = shell2[shell2$State == "Live",]
-live8.1 = live[live$pH == 8.1,]
-live8.1$rel = live8.1$ThickAdjust/sum(live8.1[live8.1$pH == 8.1,]$ThickAdjust)
-live7.6 = live[live$pH == 7.6,]
-live7.6$rel = live7.6$ThickAdjust/sum(live7.6[live7.6$pH == 7.6,]$ThickAdjust)
-live7.2 = live[live$pH == 7.2,]
-live7.2$rel = live7.2$ThickAdjust/sum(live7.2[live7.2$pH == 7.2,]$ThickAdjust)
-live = rbind(live8.1, live7.6, live7.2)
-
-# Using pH and individual variation - ancova
-lm = aov(as.numeric(live$ThickAdjust) ~ as.numeric(live$pH) + live$chamberCount)
-summary(lm)
-effectsize::eta_squared(lm, partial=F)
-
-# Dead cells
-print("Stats for the dead tests across pH levels")
-dead = shell2[shell2$State == "Dead",]
-dead8.1 = dead[dead$pH == 8.1,]
-dead8.1$rel = dead8.1$ThickAdjust/sum(dead8.1[dead8.1$pH == 8.1,]$ThickAdjust)
-dead7.6 = dead[dead$pH == 7.6,]
-dead7.6$rel = dead7.6$ThickAdjust/sum(dead7.6[dead7.6$pH == 7.6,]$ThickAdjust)
-dead7.2 = dead[dead$pH == 7.2,]
-dead7.2$rel = dead7.2$ThickAdjust/sum(dead7.2[dead7.2$pH == 7.2,]$ThickAdjust)
-dead = rbind(dead8.1, dead7.6, dead7.2)
-lm = aov(as.numeric(dead$ThickAdjust) ~ as.numeric(dead$pH) + dead$chamberCount)
-summary(lm)
-effectsize::eta_squared(lm, partial=F)
-
-# Live 7.2 vs dead 7.2
-pH = rbind(live7.2, dead7.2)
-lm = aov(pH$ThickAdjust ~ pH$State + pH$Chamber)
-summary(lm)
-effectsize::eta_squared(lm, partial=F)
-
-# Live 7.6 vs dead 7.6
-pH = rbind(live7.6, dead7.6)
-lm = aov(pH$ThickAdjust ~ pH$State + pH$Chamber)
-summary(lm)
-effectsize::eta_squared(lm, partial=F)
-
-# Live 8.1 vs dead 8.1
-pH = rbind(live8.1, dead8.1)
-lm = aov(pH$ThickAdjust ~ pH$State + pH$Chamber)
-summary(lm)
-effectsize::eta_squared(lm, partial=F)
-```
-
-# Just cell
-```{r}
-shell = shell_total[shell_total$pH != "Control",]
-semi.r = function(y, x, given){  # this function will compute the semi-partial r
-  ryx  = cor(as.numeric(y), x)
-  ryg  = cor(as.numeric(y), given)
-  rxg  = cor(x, given)
-  num  = ryx - (ryg*rxg)
-  dnm  = sqrt( (1-rxg^2) )
-  sp.r = num/dnm
-  return(sp.r)
-}
-shell2 = shell
-shell2$chamberCount=0
-shell2[shell2$Chamber == "C1.csv",]$chamberCount = 1
-shell2[shell2$Chamber == "C2.csv",]$chamberCount = 2
-shell2[shell2$Chamber == "C3.csv",]$chamberCount = 3
-shell2[shell2$Chamber == "C4.csv",]$chamberCount = 4
-shell2[shell2$Chamber == "C5.csv",]$chamberCount = 5
-shell2[shell2$Chamber == "C6.csv",]$chamberCount = 6
-shell2[shell2$Chamber == "C7.csv",]$chamberCount = 7
-shell2[shell2$Chamber == "C8.csv",]$chamberCount = 8
-
-#shell2$batchCount=0
-#shell2[shell2$Chamber == "OA2",]$batchCount = 1
-#shell2[shell2$Chamber == "OA3",]$batchCount = 2
-
-print("Stats for the live tests across pH levels")
-live = shell2[shell2$State == "Live",]
-live8.1 = live[live$pH == 8.1,]
-live8.1$rel = live8.1$ThickAdjust/sum(live8.1[live8.1$pH == 8.1,]$ThickAdjust)
-live7.6 = live[live$pH == 7.6,]
-live7.6$rel = live7.6$ThickAdjust/sum(live7.6[live7.6$pH == 7.6,]$ThickAdjust)
-live7.2 = live[live$pH == 7.2,]
-live7.2$rel = live7.2$ThickAdjust/sum(live7.2[live7.2$pH == 7.2,]$ThickAdjust)
-live = rbind(live8.1, live7.6, live7.2)
-
-# Using pH and individual variation - ancova
-lm = aov(as.numeric(live$ThickAdjust) ~ as.numeric(live$pH) + live$cell)
-summary(lm)
-effectsize::eta_squared(lm, partial=F)
-
-
-# Dead cells
-print("Stats for the dead tests across pH levels")
-dead = shell2[shell2$State == "Dead",]
-dead8.1 = dead[dead$pH == 8.1,]
-dead8.1$rel = dead8.1$ThickAdjust/sum(dead8.1[dead8.1$pH == 8.1,]$ThickAdjust)
-dead7.6 = dead[dead$pH == 7.6,]
-dead7.6$rel = dead7.6$ThickAdjust/sum(dead7.6[dead7.6$pH == 7.6,]$ThickAdjust)
-dead7.2 = dead[dead$pH == 7.2,]
-dead7.2$rel = dead7.2$ThickAdjust/sum(dead7.2[dead7.2$pH == 7.2,]$ThickAdjust)
-dead = rbind(dead8.1, dead7.6, dead7.2)
-lm = aov(as.numeric(dead$ThickAdjust) ~ as.numeric(dead$pH) + dead$cell)
-summary(lm)
-effectsize::eta_squared(lm, partial=F)
-
-# Live 7.2 vs dead 7.2
-pH = rbind(live7.2, dead7.2)
-lm = aov(pH$ThickAdjust ~ pH$State + pH$cell)
-summary(lm)
-effectsize::eta_squared(lm, partial=F)
-
-# Live 7.6 vs dead 7.6
-pH = rbind(live7.6, dead7.6)
-lm = aov(pH$ThickAdjust ~ pH$State + pH$cell)
-summary(lm)
-effectsize::eta_squared(lm, partial=F)
-
-# Live 8.1 vs dead 8.1
-pH = rbind(live8.1, dead8.1)
-lm = aov(pH$ThickAdjust ~ pH$State + pH$cell)
-summary(lm)
-effectsize::eta_squared(lm, partial=F)
-```
-
-
-## Figure 3
-### Comparison across all chambers analyzed
-### panels A and B account for 
+# Figure 3
+Comparison across all chambers analyzed
+panels A and B account for comparisons across treatment
+Panels C, D, and E account for differences across live vs dead within treatment
 ```{r}
 shell = shell_total[shell_total$pH != "Control",]
 semi.r = function(y, x, given){  # this function will compute the semi-partial r
@@ -886,11 +614,12 @@ phPlot = ggplot(live, aes(x=ThickAdjust, fill=as.factor(pH))) +
   geom_histogram(data=(subset(live,pH == 8.1)), aes(y=..count../nrow(live8.1)), alpha=0.5, binwidth=0.002) +
   geom_histogram(data=(subset(live,pH == 7.6)), aes(y=..count../nrow(live7.6)), alpha=0.5, binwidth=0.002) +
   geom_histogram(data=(subset(live,pH == 7.2)), aes(y=..count../nrow(live7.2)), alpha=0.5, binwidth=0.002) +
-  scale_fill_manual(values = c("firebrick", "goldenrod", "dodgerblue3")) +
-  theme_classic()+xlab("Normalized Thickness")+ylab("Relative Frequency") + xlim(min(shell2$ThickAdjust),max(shell2$ThickAdjust)) + ggtitle("A Live Cells") + 
+  scale_fill_manual(labels=c(expression("No"~italic(p)*"CO"[2]), expression("Moderate"~italic(p)*"CO"[2]), expression("High"~italic(p)*"CO"[2])), values = c("dodgerblue3", "goldenrod", "firebrick")) +
+  theme_classic()+xlab("Normalized Thickness")+ylab("Relative Frequency") + xlim(min(shell2$ThickAdjust),max(shell2$ThickAdjust)) + ggtitle("A.") + 
   theme(legend.position="none", text = element_text(size = 10))
 lm = aov(as.numeric(live$ThickAdjust) ~ live$pH + live$cell)
 summary(lm)
+effectsize::eta_squared(lm, partial=F)
 eta = effectsize::eta_squared(lm, partial=F)[1,2]
 anno1 = paste("Eta Squared\nTreatment:", round(eta, digits=3))
 grob1 <- grobTree(textGrob(anno1, x=0.95,  y=0.9, hjust=1,
@@ -909,14 +638,15 @@ dead7.2 = dead[dead$pH == 7.2,]
 dead7.2$rel = dead7.2$ThickAdjust/sum(dead7.2[dead7.2$pH == 7.2,]$ThickAdjust)
 dead = rbind(dead8.1, dead7.6, dead7.2)
 phPlot = ggplot(dead, aes(x=ThickAdjust, fill=as.factor(pH))) + 
-  geom_histogram(data=subset(dead,pH == 8.1), aes(y=..count../nrow(dead8.1)), alpha=0.5, binwidth=0.002) +
-  geom_histogram(data=subset(dead,pH == 7.6), aes(y=..count../nrow(dead7.6)),alpha=0.5, binwidth=0.002) +
-  geom_histogram(data=subset(dead,pH == 7.2), aes(y=..count../nrow(dead7.2)),alpha=0.5, binwidth=0.002) +
-  scale_fill_manual(labels=c("High", "Moderate", "None"), values = c("firebrick", "goldenrod", "dodgerblue3")) +
-  theme_classic()+xlab("Normalized Thickness")+ylab(NULL) + xlim(min(shell2$ThickAdjust),max(shell2$ThickAdjust)) + ggtitle("B Dead Cells") + 
+  geom_histogram(data=(subset(dead,pH == 8.1)), aes(y=..count../nrow(dead8.1)), alpha=0.5, binwidth=0.002) +
+  geom_histogram(data=(subset(dead,pH == 7.6)), aes(y=..count../nrow(dead7.6)), alpha=0.5, binwidth=0.002) +
+  geom_histogram(data=(subset(dead,pH == 7.2)), aes(y=..count../nrow(dead7.2)), alpha=0.5, binwidth=0.002) +
+  scale_fill_manual(labels=c(expression("No"~italic(p)*"CO"[2]), expression("Moderate"~italic(p)*"CO"[2]), expression("High"~italic(p)*"CO"[2])), values = c("dodgerblue3", "goldenrod", "firebrick")) +
+  theme_classic()+xlab("Normalized Thickness")+ylab(NULL) + xlim(min(shell2$ThickAdjust),max(shell2$ThickAdjust)) + ggtitle("B.") + 
   theme(text = element_text(size = 10)) + labs(fill='')
 lm = aov(as.numeric(dead$ThickAdjust) ~ dead$pH + dead$cell)
 summary(lm)
+effectsize::eta_squared(lm, partial=F)
 eta = effectsize::eta_squared(lm, partial=F)[1,2]
 anno1 = paste("Eta Squared\nTreatment:", round(eta, digits=3))
 grob1 <- grobTree(textGrob(anno1, x=0.95,  y=0.9, hjust=1,
@@ -934,9 +664,10 @@ effectsize::eta_squared(lm, partial=F)
 phPlot = ggplot(pH, aes(x=ThickAdjust, fill=as.factor(State))) + 
   geom_histogram(data=subset(pH,State == "Live"), aes(y=..count../nrow(live7.2)), alpha=0.5, binwidth=0.002) +
   geom_histogram(data=subset(pH,State == "Dead"), aes(y=..count../nrow(dead7.2)),alpha=0.5, binwidth=0.002) +
-  scale_fill_manual(values = c("gray25", "green4")) +
-  theme_classic()+xlab("Normalized Thickness")+ylab("Relative Frequency") + xlim(min(shell2$ThickAdjust),max(shell2$ThickAdjust)) + ggtitle(expression(C~High~Elevated~pCO[2])) + 
+  scale_fill_manual(values = c("green4","gray25")) +
+  theme_classic()+xlab("Normalized Thickness")+ylab("Relative Frequency") + xlim(min(shell2$ThickAdjust),max(shell2$ThickAdjust)) + ggtitle(expression(C.)) + 
   theme(legend.position="none", text = element_text(size = 10))
+effectsize::eta_squared(lm, partial=F)
 eta = effectsize::eta_squared(lm, partial=F)[1,2]
 anno1 = paste("Eta Squared\nLive Vs Dead:", round(eta, digits=3))
 grob1 <- grobTree(textGrob(anno1, x=0.95,  y=0.9, hjust=1,
@@ -953,9 +684,10 @@ effectsize::eta_squared(lm, partial=F)
 phPlot = ggplot(pH, aes(x=ThickAdjust, fill=as.factor(State))) + 
   geom_histogram(data=subset(pH,State == "Live"), aes(y=..count../nrow(live7.6)), alpha=0.5, binwidth=0.002) +
   geom_histogram(data=subset(pH,State == "Dead"), aes(y=..count../nrow(dead7.6)),alpha=0.5, binwidth=0.002) +
-  scale_fill_manual(values = c("gray25", "green4")) +
-  theme_classic()+xlab("Normalized Thickness")+ylab(NULL) + xlim(min(shell2$ThickAdjust),max(shell2$ThickAdjust)) + ggtitle(expression(D~Moderate~Elevated~pCO[2])) + 
+  scale_fill_manual(values = c("green4","gray25")) +
+  theme_classic()+xlab("Normalized Thickness")+ylab(NULL) + xlim(min(shell2$ThickAdjust),max(shell2$ThickAdjust)) + ggtitle(expression(D.)) + 
   theme(legend.position="none", text = element_text(size = 10))
+effectsize::eta_squared(lm, partial=F)
 eta = effectsize::eta_squared(lm, partial=F)[1,2]
 anno1 = paste("Eta Squared\nLive Vs Dead:", round(eta, digits=3))
 grob1 <- grobTree(textGrob(anno1, x=0.95,  y=0.90, hjust=1,
@@ -971,9 +703,10 @@ effectsize::eta_squared(lm, partial=F)
 phPlot = ggplot(pH, aes(x=ThickAdjust, fill=as.factor(State))) + 
   geom_histogram(data=subset(pH,State == "Live"), aes(y=..count../nrow(live8.1)), alpha=0.5, binwidth=0.002) +
   geom_histogram(data=subset(pH,State == "Dead"), aes(y=..count../nrow(dead8.1)),alpha=0.5, binwidth=0.002) +
-  scale_fill_manual(values = c("gray25", "green4")) +
-  theme_classic()+xlab("Normalized Thickness")+ylab(NULL) + xlim(min(shell2$ThickAdjust),max(shell2$ThickAdjust)) + ggtitle(expression(E~No~Elevated~pCO[2])) + 
+  scale_fill_manual(values = c("green4", "gray25")) +
+  theme_classic()+xlab("Normalized Thickness")+ylab(NULL) + xlim(min(shell2$ThickAdjust),max(shell2$ThickAdjust)) + ggtitle(expression(E.)) + 
   theme(text = element_text(size = 10)) + labs(fill='')
+effectsize::eta_squared(lm, partial=F)
 eta = effectsize::eta_squared(lm, partial=F)[1,2]
 anno1 = paste("Eta Squared\nLive Vs Dead:", round(eta, digits=3))
 grob1 <- grobTree(textGrob(anno1, x=0.95,  y=0.90, hjust=1,
@@ -982,15 +715,17 @@ grob1 <- grobTree(textGrob(anno1, x=0.95,  y=0.90, hjust=1,
 p5 = phPlot + annotation_custom(grob1) + theme(legend.position="none")
 legend2 = get_legend(phPlot + theme(legend.box.margin = margin(0, 0, 0, 12)))
                      
-top_row <- plot_grid(p1, p2, legend1, ncol=3, rel_widths=c(1,1,0.3))
+top_row <- plot_grid(p1, p2, legend1, ncol=3, rel_widths=c(1,1,0.5))
 bottom_row <- plot_grid(p3,p4,p5, legend2,ncol=4, rel_widths=c(1,1,1,0.35))
 
 overall = plot_grid(top_row, bottom_row, ncol = 1)
 overall
-ggsave(plot = overall, file="/nese/zhanglab/cpowers/NB_Forams/NB_Forams/13_OA_Experiment/figures/Fig3.svg", width=8, height=4.5)
+ggsave(plot = overall, file="figures/Fig3.svg", width=8, height=4.5)
 ```
 
-## Figure 4: Summary of impact across chamber
+# Figure 4: Summary of impact across chamber
+This plot runs eta squared analysis within each chamber and treatment across the
+live and dead to assess the impact of treatment at the chamber level.
 ```{r}
 shell2 <- shell_total[shell_total$pH != "Control",]
 thick_by_pH <- function(shell) {
@@ -1021,42 +756,42 @@ thick_by_pH <- function(shell) {
 plot_thick <- function(e, plotname) {
   n = 25000
   
-  C1_3d <- read.csv("/nese/zhanglab/cpowers/NB_Forams/NB_Forams/13_OA_Experiment/3dHeatmap/OA2_T1_h1_Live_C1.csv", sep=";")
+  C1_3d <- read.csv("3dHeatmap/OA2_T1_h1_Live_C1.csv", sep=";")
   C1_3d_sampled = sample(C1_3d$Vertex.Index, n, replace=F, prob=NULL)
   C1_3d = as.data.frame(C1_3d[C1_3d$Vertex.Index %in% C1_3d_sampled,])
   C1_3d$ef = e[3][1,]
 
-  C2_3d <- read.csv("/nese/zhanglab/cpowers/NB_Forams/NB_Forams/13_OA_Experiment/3dHeatmap/OA2_T1_h1_Live_C2.csv", sep=";")
+  C2_3d <- read.csv("3dHeatmap/OA2_T1_h1_Live_C2.csv", sep=";")
   C2_3d_sampled = sample(C2_3d$Vertex.Index, n, replace=F, prob=NULL)
   C2_3d = C2_3d[C2_3d$Vertex.Index %in% C2_3d_sampled,]
   C2_3d$ef = e[3][2,]
 
-  C3_3d <- read.csv("/nese/zhanglab/cpowers/NB_Forams/NB_Forams/13_OA_Experiment/3dHeatmap/OA2_T1_h1_Live_C3.csv", sep=";")
+  C3_3d <- read.csv("3dHeatmap/OA2_T1_h1_Live_C3.csv", sep=";")
   C3_3d_sampled = sample(C3_3d$Vertex.Index, n, replace=F, prob=NULL)
   C3_3d = C3_3d[C3_3d$Vertex.Index %in% C3_3d_sampled,]
   C3_3d$ef = e[3][3,]
 
-  C4_3d <- read.csv("/nese/zhanglab/cpowers/NB_Forams/NB_Forams/13_OA_Experiment/3dHeatmap/OA2_T1_h1_Live_C4.csv", sep=";")
+  C4_3d <- read.csv("3dHeatmap/OA2_T1_h1_Live_C4.csv", sep=";")
   C4_3d_sampled = sample(C4_3d$Vertex.Index, n, replace=F, prob=NULL)
   C4_3d = C4_3d[C4_3d$Vertex.Index %in% C4_3d_sampled,]
   C4_3d$ef = e[3][4,]
 
-  C5_3d <- read.csv("/nese/zhanglab/cpowers/NB_Forams/NB_Forams/13_OA_Experiment/3dHeatmap/OA2_T1_h1_Live_C5.csv", sep=";")
+  C5_3d <- read.csv("3dHeatmap/OA2_T1_h1_Live_C5.csv", sep=";")
   C5_3d_sampled = sample(C5_3d$Vertex.Index, n, replace=F, prob=NULL)
   C5_3d = C5_3d[C5_3d$Vertex.Index %in% C5_3d_sampled,]
   C5_3d$ef = e[3][5,]
 
-  C6_3d <- read.csv("/nese/zhanglab/cpowers/NB_Forams/NB_Forams/13_OA_Experiment/3dHeatmap/OA2_T1_h1_Live_C6.csv", sep=";")
+  C6_3d <- read.csv("3dHeatmap/OA2_T1_h1_Live_C6.csv", sep=";")
   C6_3d_sampled = sample(C6_3d$Vertex.Index, n, replace=F, prob=NULL)
   C6_3d = C6_3d[C6_3d$Vertex.Index %in% C6_3d_sampled,]
   C6_3d$ef = e[3][6,]
   
-  C7_3d <- read.csv("/nese/zhanglab/cpowers/NB_Forams/NB_Forams/13_OA_Experiment/3dHeatmap/OA2_T1_h1_Live_C7.csv", sep=";")
+  C7_3d <- read.csv("3dHeatmap/OA2_T1_h1_Live_C7.csv", sep=";")
   C7_3d_sampled = sample(C7_3d$Vertex.Index, n, replace=F, prob=NULL)
   C7_3d = C7_3d[C7_3d$Vertex.Index %in% C7_3d_sampled,]
   C7_3d$ef = e[3][7,]
 
-  C8_3d <- read.csv("/nese/zhanglab/cpowers/NB_Forams/NB_Forams/13_OA_Experiment/3dHeatmap/OA2_T1_h1_Live_C8.csv", sep=";")
+  C8_3d <- read.csv("3dHeatmap/OA2_T1_h1_Live_C8.csv", sep=";")
   C8_3d_sampled = sample(C8_3d$Vertex.Index, n, replace=F, prob=NULL)
   C8_3d = C8_3d[C8_3d$Vertex.Index %in% C8_3d_sampled,]
   C8_3d$ef = e[3][8,]
@@ -1086,307 +821,21 @@ effect = thick_by_pH(shell2)
 
 reticulate::use_miniconda('r-reticulate')
 ph72 <- effect[effect$p == 7.2,]
-fig <- plot_thick(ph72, "High Elevated pCO2")
+fig <- plot_thick(ph72, "High pCO2")
 fig
-save_image(fig, "/nese/zhanglab/cpowers/NB_Forams/NB_Forams/13_OA_Experiment/figures/Fig4A.svg")
+save_image(fig, "figures/Fig4A.svg")
 
 ph76 <- effect[effect$p == 7.6,]
-fig <- plot_thick(ph76, "Moderate Elevated pCO2")
+fig <- plot_thick(ph76, "Moderate pCO2")
 fig
-save_image(fig, "/nese/zhanglab/cpowers/NB_Forams/NB_Forams/13_OA_Experiment/figures/Fig4B.svg")
+save_image(fig, "figures/Fig4B.svg")
 
 ph81 <- effect[effect$p == 8.1,]
-fig <- plot_thick(ph81, "No Elevated pCO2")
+fig <- plot_thick(ph81, "No pCO2")
 fig
-save_image(fig, "/nese/zhanglab/cpowers/NB_Forams/NB_Forams/13_OA_Experiment/figures/Fig4C.svg")
+save_image(fig, "figures/Fig4C.svg")
 
-fig <- ggplot(effect, aes(x=p, y=as.numeric(se), col=p)) + geom_boxplot(show.legend = FALSE) + theme_classic() + theme(text = element_text(size = 20)) + ylim(c(0,0.45)) + xlab(expression(pCO[2]~Treatment)) + ylab("Average Effect Size") + scale_x_discrete(labels = c('High','Moderate','None')) + scale_colour_manual(values = c("firebrick", "goldenrod", "dodgerblue3"))
+fig <- ggplot(effect, aes(x=p, y=as.numeric(se), fill=p)) + geom_boxplot(show.legend = TRUE) + theme_bw() + theme(text = element_text(size = 36)) + ylim(c(0,0.45)) + xlab(expression()) + ylab("Average Effect Size") + scale_x_discrete(labels = c('','','')) + scale_fill_manual(labels=c(expression("High"~italic(p)*"CO"[2]), expression("Moderate"~italic(p)*"CO"[2]), expression("No"~italic(p)*"CO"[2])), values = c("firebrick", "goldenrod", "dodgerblue3"))+ guides(fill=guide_legend(title="Treatment"))
 fig
-ggsave(plot=fig, file="/nese/zhanglab/cpowers/NB_Forams/NB_Forams/13_OA_Experiment/figures/Fig4D.svg", width=6,height=6)
-```
-
-## Obsolete Figure
-### Summary of impact of pH across chamber
-```{r}
-library(tidyverse)
-ph_plot <- function(shell, State) {
-liveShell = shell[shell$State == State,]
-liveShell$chamberCount=0
-liveShell[liveShell$Chamber == "C1.csv",]$chamberCount = 1
-liveShell[liveShell$Chamber == "C2.csv",]$chamberCount = 2
-liveShell[liveShell$Chamber == "C3.csv",]$chamberCount = 3
-liveShell[liveShell$Chamber == "C4.csv",]$chamberCount = 4
-liveShell[liveShell$Chamber == "C5.csv",]$chamberCount = 5
-liveShell[liveShell$Chamber == "C6.csv",]$chamberCount = 6
-liveShell[liveShell$Chamber == "C7.csv",]$chamberCount = 7
-liveShell[liveShell$Chamber == "C8.csv",]$chamberCount = 8
-
-effect <- data.frame(matrix(NA, nrow=0, ncol=5))
-liveShell$ThickAdjust = (liveShell$Thickness..mm.*1000)/as.numeric(liveShell$Shell.Diameter)
-liveShell = liveShell[liveShell$Batch == "OA2",]
-
-C1 = liveShell[liveShell$Chamber == "C1.csv",]
-lm = lm(C1$ThickAdjust~C1$pH)
-summary(lm)
-pe = summary(lm)$r.squared
-#pe = effectsize::eta_squared(lm, partial=F)[1,2]
-#ce = effectsize::eta_squared(lm, partial=F)[2,2]
-row = cbind(1, "Live", pe, mean(C1$ThickAdjust))
-effect = rbind(effect, row)
-
-C2 = liveShell[liveShell$Chamber == "C2.csv",]
-lm = lm(C2$ThickAdjust~C2$pH)
-summary(lm)
-#pe = effectsize::eta_squared(lm, partial=F)[1,2]
-#ce = effectsize::eta_squared(lm, partial=F)[2,2]
-pe = summary(lm)$r.squared
-row = cbind(2, "Live", pe, mean(C2$ThickAdjust))
-effect = rbind(effect, row)
-
-C3 = liveShell[liveShell$Chamber == "C3.csv",]
-lm = lm(C3$ThickAdjust~C3$pH)
-summary(lm)
-#pe = effectsize::eta_squared(lm, partial=F)[1,2]
-#ce = effectsize::eta_squared(lm, partial=F)[2,2]
-pe = summary(lm)$r.squared
-row = cbind(3, "Live", pe, mean(C3$ThickAdjust))
-effect = rbind(effect, row)
-
-C4 = liveShell[liveShell$Chamber == "C4.csv",]
-lm = lm(C4$ThickAdjust~C4$pH)
-summary(lm)
-#pe = effectsize::eta_squared(lm, partial=F)[1,2]
-#ce = effectsize::eta_squared(lm, partial=F)[2,2]
-row = cbind(4, "Live", pe, mean(C4$ThickAdjust))
-effect = rbind(effect, row)
-
-C5 = liveShell[liveShell$Chamber == "C5.csv",]
-lm = lm(C5$ThickAdjust~C5$pH)
-summary(lm)
-#pe = effectsize::eta_squared(lm, partial=F)[1,2]
-#ce = effectsize::eta_squared(lm, partial=F)[2,2]
-pe = summary(lm)$r.squared
-row = cbind(5, "Live", pe, mean(C5$ThickAdjust))
-effect = rbind(effect, row)
-
-C6 = liveShell[liveShell$Chamber == "C6.csv",]
-lm = lm(C6$ThickAdjust~C6$pH)
-summary(lm)
-#pe = effectsize::eta_squared(lm, partial=F)[1,2]
-#ce = effectsize::eta_squared(lm, partial=F)[2,2]
-pe = summary(lm)$r.squared
-row = cbind(6, "Live", pe, mean(C6$ThickAdjust))
-effect = rbind(effect, row)
-
-C7 = liveShell[liveShell$Chamber == "C7.csv",]
-lm = lm(C7$ThickAdjust~C7$pH)
-summary(lm)
-#pe = effectsize::eta_squared(lm, partial=F)[1,2]
-#ce = effectsize::eta_squared(lm, partial=F)[2,2]
-pe = summary(lm)$r.squared
-row = cbind(7, "Live", pe, mean(C7$ThickAdjust))
-effect = rbind(effect, row)
-
-C8 = liveShell[liveShell$Chamber == "C8.csv",]
-lm = lm(C8$ThickAdjust~C8$pH)
-summary(lm)
-#pe = effectsize::eta_squared(lm, partial=F)[1,2]
-#ce = effectsize::eta_squared(lm, partial=F)[2,2]
-pe = summary(lm)$r.squared
-row = cbind(8, "Live", pe, mean(C8$ThickAdjust))
-effect = rbind(effect, row)
-return(effect)
-}
-
-
-
-plot_thick <- function(e, plotname) {
-  n = 25000
-  C1_3d <- read.csv("/nese/zhanglab/cpowers/NB_Forams/NB_Forams/13_OA_Experiment/3dHeatmap/OA2_T1_h1_Live_C1.csv", sep=";")
-  C1_3d_sampled = sample(C1_3d$Vertex.Index, n, replace=F, prob=NULL)
-  C1_3d = as.data.frame(C1_3d[C1_3d$Vertex.Index %in% C1_3d_sampled,])
-  C1_3d$thick = e[3][1,]
-
-  C2_3d <- read.csv("/nese/zhanglab/cpowers/NB_Forams/NB_Forams/13_OA_Experiment/3dHeatmap/OA2_T1_h1_Live_C2.csv", sep=";")
-  C2_3d_sampled = sample(C2_3d$Vertex.Index, n, replace=F, prob=NULL)
-  C2_3d = C2_3d[C2_3d$Vertex.Index %in% C2_3d_sampled,]
-  C2_3d$thick = e[3][2,]
-
-  C3_3d <- read.csv("/nese/zhanglab/cpowers/NB_Forams/NB_Forams/13_OA_Experiment/3dHeatmap/OA2_T1_h1_Live_C3.csv", sep=";")
-  C3_3d_sampled = sample(C3_3d$Vertex.Index, n, replace=F, prob=NULL)
-  C3_3d = C3_3d[C3_3d$Vertex.Index %in% C3_3d_sampled,]
-  C3_3d$thick = e[3][3,]
-
-  C4_3d <- read.csv("/nese/zhanglab/cpowers/NB_Forams/NB_Forams/13_OA_Experiment/3dHeatmap/OA2_T1_h1_Live_C4.csv", sep=";")
-  C4_3d_sampled = sample(C4_3d$Vertex.Index, n, replace=F, prob=NULL)
-  C4_3d = C4_3d[C4_3d$Vertex.Index %in% C4_3d_sampled,]
-  C4_3d$thick = e[3][4,]
-
-  C5_3d <- read.csv("/nese/zhanglab/cpowers/NB_Forams/NB_Forams/13_OA_Experiment/3dHeatmap/OA2_T1_h1_Live_C5.csv", sep=";")
-  C5_3d_sampled = sample(C5_3d$Vertex.Index, n, replace=F, prob=NULL)
-  C5_3d = C5_3d[C5_3d$Vertex.Index %in% C5_3d_sampled,]
-  C5_3d$thick = e[3][5,]
-
-  C6_3d <- read.csv("/nese/zhanglab/cpowers/NB_Forams/NB_Forams/13_OA_Experiment/3dHeatmap/OA2_T1_h1_Live_C6.csv", sep=";")
-  C6_3d_sampled = sample(C6_3d$Vertex.Index, n, replace=F, prob=NULL)
-  C6_3d = C6_3d[C6_3d$Vertex.Index %in% C6_3d_sampled,]
-  C6_3d$thick = e[3][6,]
-
-  C7_3d <- read.csv("/nese/zhanglab/cpowers/NB_Forams/NB_Forams/13_OA_Experiment/3dHeatmap/OA2_T1_h1_Live_C7.csv", sep=";")
-  C7_3d_sampled = sample(C7_3d$Vertex.Index, n, replace=F, prob=NULL)
-  C7_3d = C7_3d[C7_3d$Vertex.Index %in% C7_3d_sampled,]
-  C7_3d$thick = e[3][7,]
-
-  C8_3d <- read.csv("/nese/zhanglab/cpowers/NB_Forams/NB_Forams/13_OA_Experiment/3dHeatmap/OA2_T1_h1_Live_C8.csv", sep=";")
-  C8_3d_sampled = sample(C8_3d$Vertex.Index, n, replace=F, prob=NULL)
-  C8_3d = C8_3d[C8_3d$Vertex.Index %in% C8_3d_sampled,]
-  C8_3d$thick = e[3][8,]
-
-  d3 = rbind(C1_3d, C2_3d, C3_3d, C4_3d, C5_3d, C6_3d, C7_3d, C8_3d)
-  
-  fig <- plot_ly(d3, x = ~X.Coordinate..mm., y = ~Y.Coordinate..mm., z = ~Z.Coordinate..mm.,
-               mode = "markers",
-               marker = list(
-    size = 0.5,
-    color = ~ thick,
-    colorbar = list(title = expression(R^2)),
-    colorscale='Viridis',
-    cmin = 0,
-    cmax = 0.45
-  ), type="scatter3d")%>%layout(title = plotname)%>%layout(title = plotname, 
-                                scene = list(camera = list(eye = list(x = 0.5, y = -2, z = 0.25)),
-                                             xaxis = list(title = '', showgrid = F, visible=F),
-                                             yaxis = list(title = '', showgrid = F, visible=F),
-                                             zaxis = list(title = '', showgrid = F, visible=F)))
-  return(fig)
-}
-
-effect1 = ph_plot(shell, "Live")
-plot_thick(effect1, "Live")
-
-effect2 = ph_plot(shell, "Dead")
-plot_thick(effect2, "Dead")
-
-effect1$State = "Live"
-effect2$State = "Dead"
-effect = rbind(effect1, effect2)
-ggplot(effect, aes(y=as.numeric(pe), color=State)) + geom_boxplot() + theme_classic() + theme(text = element_text(size = 20)) + ylim(c(0,0.45)) + xlab("State") + ylab(expression(Average~R^2)) + scale_x_discrete(labels = c("Live", "Dead")) + scale_colour_manual(values = c("gray25", "green4"))
-```
-
-#  This shows the differences between the megalospheric and microspheric data
-# at the two data points where we have enough cells to make the comparison
-```{r}
-pH7p2 = shell[shell$pH == 7.2 & shell$State == "Live",]
-
-lm = aov(data = pH7p2, ThickAdjust ~ Repoductive)
-summary(lm)
-eta = effectsize::eta_squared(lm, partial=F)
-eta
-meg = pH7p2[pH7p2$Repoductive == "Megalosphere",]
-meg$rel = meg$ThickAdjust/sum(meg[meg$Repoductive == "Megalosphere",]$ThickAdjust)
-mic = pH7p2[pH7p2$Repoductive == "Microsphere",]
-mic$rel = mic$ThickAdjust/sum(mic[mic$Repoductive == "Microsphere",]$ThickAdjust)
-pH7p2 = rbind(mic, meg)
-p1 = ggplot(pH7p2, aes(x=ThickAdjust, fill=Repoductive)) + 
-  geom_histogram(data=(subset(pH7p2,Repoductive == "Megalosphere")), aes(y=..count../nrow(meg)), alpha=0.5, binwidth=0.002) +
-  geom_histogram(data=(subset(pH7p2,Repoductive == "Microsphere")), aes(y=..count../nrow(mic)), alpha=0.5, binwidth=0.002) + theme_classic() + ggtitle("A. pH 7.2 Live") + xlab("Normalized Thickness") + ylab("Relative Frequency")
-anno1 = paste("Effect Size of Reproductive State:", round(eta[1,2], digits=2))
-grob1 <- grobTree(textGrob(anno1, x=0.95,  y=0.9, hjust=1,
-  gp=gpar(col="black", fontsize=8, fontface="italic")))
-# Plot
-p1 = p1 + annotation_custom(grob1)
-p1 
-
-# Dead cells
-pH7p2 = shell[shell$pH == 7.2 & shell$State == "Dead",]
-
-lm = aov(data = pH7p2, ThickAdjust ~ Repoductive)
-summary(lm)
-eta = effectsize::eta_squared(lm, partial=F)
-eta
-meg = pH7p2[pH7p2$Repoductive == "Megalosphere",]
-meg$rel = meg$ThickAdjust/sum(meg[meg$Repoductive == "Megalosphere",]$ThickAdjust)
-mic = pH7p2[pH7p2$Repoductive == "Microsphere",]
-mic$rel = mic$ThickAdjust/sum(mic[mic$Repoductive == "Microsphere",]$ThickAdjust)
-pH7p2 = rbind(mic, meg)
-p2 = ggplot(pH7p2, aes(x=ThickAdjust, fill=Repoductive)) + 
-  geom_histogram(data=(subset(pH7p2,Repoductive == "Megalosphere")), aes(y=..count../nrow(meg)), alpha=0.5, binwidth=0.002) +
-  geom_histogram(data=(subset(pH7p2,Repoductive == "Microsphere")), aes(y=..count../nrow(mic)), alpha=0.5, binwidth=0.002) + theme_classic() + ggtitle("B. pH 7.2 Dead") + xlab("Normalized Thickness") + ylab("Relative Frequency")
-
-anno1 = paste("Effect Size of Reproductive State:", round(eta[1,2], digits=2))
-grob1 <- grobTree(textGrob(anno1, x=0.95,  y=0.9, hjust=1,
-  gp=gpar(col="black", fontsize=8, fontface="italic")))
-# Plot
-p2 = p2 + annotation_custom(grob1)
-p2
-
-# Dead cells
-pH7p6 = shell[shell$pH == 7.6 & shell$State == "Dead",]
-
-lm = aov(data = pH7p6, ThickAdjust ~ Repoductive)
-summary(lm)
-eta = effectsize::eta_squared(lm, partial=F)
-eta
-meg = pH7p6[pH7p6$Repoductive == "Megalosphere",]
-meg$rel = meg$ThickAdjust/sum(meg[meg$Repoductive == "Megalosphere",]$ThickAdjust)
-mic = pH7p6[pH7p6$Repoductive == "Microsphere",]
-mic$rel = mic$ThickAdjust/sum(mic[mic$Repoductive == "Microsphere",]$ThickAdjust)
-pH7p2 = rbind(mic, meg)
-p3 = ggplot(pH7p6, aes(x=ThickAdjust, fill=Repoductive)) + 
-  geom_histogram(data=(subset(pH7p6,Repoductive == "Megalosphere")), aes(y=..count../nrow(meg)), alpha=0.5, binwidth=0.002) +
-  geom_histogram(data=(subset(pH7p6,Repoductive == "Microsphere")), aes(y=..count../nrow(mic)), alpha=0.5, binwidth=0.002) + theme_classic() + ggtitle("C. pH 7.6 Dead") + xlab("Normalized Thickness") + ylab("Relative Frequency")
-
-anno1 = paste("Effect Size of Reproductive State:", round(eta[1,2], digits=2))
-grob1 <- grobTree(textGrob(anno1, x=0.95,  y=0.9, hjust=1,
-  gp=gpar(col="black", fontsize=8, fontface="italic")))
-# Plot
-p3 = p3 + annotation_custom(grob1)
-p3
-
-pH8p1 = shell[shell$pH == 8.1 & shell$State == "Live",]
-
-lm = aov(data = pH8p1, ThickAdjust ~ Repoductive)
-summary(lm)
-eta = effectsize::eta_squared(lm, partial=F)
-eta
-
-meg = pH8p1[pH8p1$Repoductive == "Megalosphere",]
-meg$rel = meg$ThickAdjust/sum(meg[meg$Repoductive == "Megalosphere",]$ThickAdjust)
-mic = pH8p1[pH8p1$Repoductive == "Microsphere",]
-mic$rel = mic$ThickAdjust/sum(mic[mic$Repoductive == "Microsphere",]$ThickAdjust)
-pH8p1 = rbind(mic, meg)
-p4 = ggplot(pH8p1, aes(x=ThickAdjust, fill=Repoductive)) + 
-  geom_histogram(data=(subset(pH8p1,Repoductive == "Megalosphere")), aes(y=..count../nrow(meg)), alpha=0.5, binwidth=0.002) +
-  geom_histogram(data=(subset(pH8p1,Repoductive == "Microsphere")), aes(y=..count../nrow(mic)), alpha=0.5, binwidth=0.002) + theme_classic() + ggtitle("D. pH 8.1 Live") + xlab("Normalized Thickness") + ylab("Relative Frequency")
-anno1 = paste("Effect Size of Reproductive State:", round(eta[1,2], digits=2))
-grob1 <- grobTree(textGrob(anno1, x=0.95,  y=0.9, hjust=1,
-  gp=gpar(col="black", fontsize=8, fontface="italic")))
-# Plot
-p4 = p4 + annotation_custom(grob1)
-p4
-
-# Dead cells
-pH8p1 = shell[shell$pH == 8.1 & shell$State == "Dead",]
-
-lm = aov(data = pH8p1, ThickAdjust ~ Repoductive)
-summary(lm)
-eta = effectsize::eta_squared(lm, partial=F)
-eta
-
-meg = pH8p1[pH8p1$Repoductive == "Megalosphere",]
-meg$rel = meg$ThickAdjust/sum(meg[meg$Repoductive == "Megalosphere",]$ThickAdjust)
-mic = pH8p1[pH8p1$Repoductive == "Microsphere",]
-mic$rel = mic$ThickAdjust/sum(mic[mic$Repoductive == "Microsphere",]$ThickAdjust)
-pH7p2 = rbind(mic, meg)
-p5 = ggplot(pH8p1, aes(x=ThickAdjust, fill=Repoductive)) + 
-  geom_histogram(data=(subset(pH8p1,Repoductive == "Megalosphere")), aes(y=..count../nrow(meg)), alpha=0.5, binwidth=0.002) +
-  geom_histogram(data=(subset(pH8p1,Repoductive == "Microsphere")), aes(y=..count../nrow(mic)), alpha=0.5, binwidth=0.002) + theme_classic() + ggtitle("E. pH 8.1 Dead") + xlab("Normalized Thickness") + ylab("Relative Frequency")
-
-anno1 = paste("Effect Size of Reproductive State:", round(eta[1,2], digits=2))
-grob1 <- grobTree(textGrob(anno1, x=0.95,  y=0.9, hjust=1,
-  gp=gpar(col="black", fontsize=8, fontface="italic")))
-# Plot
-p5 = p5 + annotation_custom(grob1)
-p5
-grid.arrange(p1,p2,p3,p4,p5)
+ggsave(plot=fig, file="figures/Fig4D.svg", width=10,height=6)
 ```
