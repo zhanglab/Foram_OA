@@ -11,7 +11,7 @@ The data for this analysis is hosted on [figshare](https://figshare.com/account/
 tar -vzf waterAnalysis.tar.gz -c waterAnalysis
 tar -xvzf thicknessData.tar.gz
 mkdir thicknessAnalysis
-mv nese/zhanglab/OSN_pod/NB_forams/OA\ Images/Shell_Analysis/Shell_Analysis/OA* thicknessAnalysis/
+mv OA*.csv thicknessAnalysis/
 ```
 
 At this point, all of the data should be prepared for analysis.
