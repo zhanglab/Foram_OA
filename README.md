@@ -1,3 +1,5 @@
+[![DOI](https://zenodo.org/badge/863505701.svg)](https://doi.org/10.5281/zenodo.15653268)
+
 # Foram_OA
 
 This git repository is designed to guide to user through the analysis of X-Ray microscopy data from foraminifera incubated under different ocean acidification conditions. This analysis has two steps:
